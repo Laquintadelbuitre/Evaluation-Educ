@@ -101,42 +101,102 @@
 const DOMAINS = [
   { id: "conception", label: "Conception & planification",
     q1: "Cette saison, quelle séance a le mieux servi ta progression collective ? Qu'est-ce qui a fait la différence ?",
-    q2: "Où as-tu improvisé alors que tu aurais dû préparer davantage ?" },
+    q2: "Où as-tu improvisé alors que tu aurais dû préparer davantage ?",
+    q3: "Sur tes 10 dernières séances, combien avaient un objectif pédagogique unique et explicite, et combien étaient une juxtaposition d'exercices sans vrai fil conducteur ?",
+    q4: "Ta séance de cette semaine s'inscrit-elle clairement dans un cycle de ta programmation annuelle, ou fonctionne-t-elle en autonomie, déconnectée du fil de saison ?",
+    q5: "Quand tu conçois une séance pour tes 22 joueurs, prévois-tu vraiment des variantes selon le niveau, ou le contenu est identique pour tous et ce sont les joueurs qui s'adaptent ?",
+    q6: "As-tu déjà dû casser ou réinventer une séance en plein milieu parce qu'elle ne correspondait pas au niveau réel du groupe ? Qu'est-ce que ça dit de ton évaluation en amont ?",
+    q7: "Après une séance, gardes-tu une trace concrète de ce qui doit changer pour la suivante, ou la leçon s'efface avant que tu ne rouvres ton carnet de prépa ?" },
+
   { id: "animation", label: "Animation & pédagogie",
     q1: "Repense à une séance qui n'a pas pris. Qu'est-ce que TOI tu as fait qui a contribué au problème ?",
-    q2: "À qui donnes-tu le moins de feedback individualisé, et pourquoi ?" },
+    q2: "À qui donnes-tu le moins de feedback individualisé, et pourquoi ?",
+    q3: "Sur une séance type, combien de temps les joueurs passent-ils à t'écouter parler contre combien de temps à jouer ? L'as-tu déjà chronométré, ou c'est une impression ?",
+    q4: "Ton feedback pendant l'exercice porte-t-il sur ce que le joueur vient de faire, ou sur ce que tu voulais qu'il fasse ? Arrive-t-il dans les 5 secondes, ou après coup en fin d'exercice ?",
+    q5: "Quand un exercice ne fonctionne pas, laisses-tu les joueurs chercher la solution quelques secondes avant d'intervenir, ou coupes-tu systématiquement au premier couac ?",
+    q6: "Combien de fois par séance poses-tu une vraie question ouverte à un joueur, qui l'oblige à réfléchir, plutôt que de lui donner directement la réponse ?",
+    q7: "T'arrive-t-il de modifier un exercice en cours de séance parce qu'il ne produit pas l'effet voulu, ou le déroules-tu jusqu'au bout tel que prévu, même si tu sens que ça ne marche pas ?" },
+
   { id: "tactique", label: "Tactique & développement du jeu",
     q1: "Quel principe de jeu tu répètes souvent mais que les joueurs n'ont toujours pas intégré ? Pourquoi, à ton avis ?",
     q2: "Peux-tu résumer ta philosophie de jeu en une phrase, à un parent qui n'y connaît rien ?",
-    q3: "En match, laisses-tu les joueurs résoudre les problèmes tactiques eux-mêmes, ou interviens-tu trop vite depuis la touche ? Qu'est-ce qui te pousse à intervenir ?" },
+    q3: "Un principe travaillé à l'entraînement cette semaine, l'as-tu revu apparaître en match — et si non, qu'est-ce que ça t'apprend sur ta méthode de transfert ?",
+    q4: "Si tu demandais à trois joueurs au hasard d'expliquer pourquoi vous travaillez tel principe, sauraient-ils répondre, ou reproduiraient-ils juste le geste sans le sens ?",
+    q5: "Tes situations tactiques montent-elles vraiment en complexité au fil de la séance, ou passes-tu d'un exercice à l'autre sans logique de progression ?",
+    q6: "As-tu un joueur qui exécute très bien les consignes collectives mais ne lit jamais le jeu par lui-même ? Qu'as-tu tenté pour ça spécifiquement ?",
+    q7: "Le vocabulaire tactique que tu utilises (soutien, permutation, etc.) est-il partagé et compris de la même façon par tout le groupe, ou chacun a sa propre interprétation ?" },
+
   { id: "technique", label: "Technique individuelle",
     q1: "Quel geste technique de base (contrôle, passe, frappe, conduite, duel) tu travailles le moins souvent en séance, et pourquoi ?",
-    q2: "As-tu un joueur avec un défaut technique récurrent que tu n'as toujours pas corrigé ? Qu'est-ce qui t'a empêché de t'y attaquer ?" },
+    q2: "As-tu un joueur avec un défaut technique récurrent que tu n'as toujours pas corrigé ? Qu'est-ce qui t'a empêché de t'y attaquer ?",
+    q3: "Le travail technique individuel est-il présent à chaque séance sous une forme ou une autre, ou seulement quand il reste du temps après le collectif ?",
+    q4: "Combien de tes joueurs travaillent réellement leur pied faible chaque semaine, et est-ce toi qui l'imposes ou seulement ceux qui le font spontanément ?",
+    q5: "Corriges-tu le même geste de la même façon pour tous, ou adaptes-tu ta correction à la morphologie et au niveau de chaque joueur ?",
+    q6: "Ton travail technique se fait-il surtout en isolation, sans opposition, ou intègres-tu vite de la pression et de la fatigue pour rapprocher du réel ?",
+    q7: "Peux-tu citer un geste technique précis chez un joueur qui s'est visiblement amélioré cette saison grâce à ton travail ciblé — ou c'est flou ?" },
+
   { id: "mental", label: "Mental & compétition",
     q1: "Comment réagis-tu, toi, sur le banc quand l'équipe encaisse un but ou qu'une décision arbitrale te semble injuste ? Qu'est-ce que tu transmets sans le vouloir à ce moment-là ?",
     q2: "As-tu une méthode pour préparer tes joueurs à gérer la pression en match, ou ça reste de l'instinct au coup par coup ?",
-    q3: "Quel joueur perd le plus vite sa confiance après une erreur ? Qu'as-tu mis en place concrètement, cette saison, pour l'aider ?",
-    q4: "Après une défaite lourde, qu'est-ce que tu dis en premier au groupe — et est-ce que ça t'arrive de le dire sous le coup de l'émotion plutôt que par choix ?" },
+    q3: "As-tu un rituel à toi — respiration, phrase, geste — pour te recentrer avant de réagir à chaud en match, ou tu improvises à chaque fois selon l'humeur ?",
+    q4: "Quand un joueur rate une action décisive, qu'entend-il en premier de ta part — et de la part de ses coéquipiers ? Ce climat, l'as-tu façonné volontairement ?",
+    q5: "Sens-tu une différence dans ton propre comportement selon l'enjeu du match, amical ou officiel important ? Que transmets-tu de cette différence ?",
+    q6: "As-tu déjà dit explicitement à ton groupe ce que tu attends d'eux après une erreur, ou c'est resté implicite jusqu'ici ?",
+    q7: "Quel joueur a le plus progressé mentalement cette saison en confiance ou en gestion de la pression — et qu'as-tu fait, précisément, qui y a contribué ?" },
+
   { id: "physique", label: "Préparation physique & charge",
     q1: "As-tu déjà poussé une séance alors que les signaux (RPE, fatigue) disaient le contraire ?",
-    q2: "Quel joueur est le plus à risque de surcharge en ce moment, et que fais-tu concrètement pour ça ?" },
+    q2: "Quel joueur est le plus à risque de surcharge en ce moment, et que fais-tu concrètement pour ça ?",
+    q3: "Ta charge d'entraînement en milieu de semaine tient-elle compte réellement du match précédent et du suivant, ou le contenu est-il fixe indépendamment du calendrier ?",
+    q4: "Repères-tu la fatigue ou une gêne physique avant que le joueur ne te le dise, ou tu l'apprends après coup ?",
+    q5: "Un joueur qui cumule école, autre sport, ou fatigue personnelle a-t-il une charge adaptée chez toi, ou le même volume que les autres ?",
+    q6: "Ton échauffement cible-t-il les zones à risque connues pour cet âge, ou c'est un échauffement générique repris d'une saison à l'autre ?",
+    q7: "As-tu un protocole clair de retour progressif après une blessure ou une grosse fatigue, ou le joueur reprend \"quand ça va mieux\" sans étapes définies ?" },
+
   { id: "communication", label: "Communication",
     q1: "Y a-t-il une conversation difficile (joueur, staff, club) que tu évites depuis un moment ?",
-    q2: "Quand as-tu reçu une critique la dernière fois, et comment as-tu réagi sur le moment ?" },
+    q2: "Quand as-tu reçu une critique la dernière fois, et comment as-tu réagi sur le moment ?",
+    q3: "Choisis-tu ton canal (face à face, message, groupe) en fonction de la gravité du sujet, ou tu utilises toujours le même par habitude ou facilité ?",
+    q4: "Quand tu n'es pas satisfait de quelque chose, le dis-tu clairement à la personne concernée, ou tu le glisses en allusion en espérant que ça passe ?",
+    q5: "Tes joueurs ou ton staff savent-ils comment te remonter un problème, ou est-ce que ça doit toujours passer par toi qui le détectes en premier ?",
+    q6: "Le message que tu donnes à un joueur en semaine correspond-il à celui que tu donnes en match, ou changes-tu de discours selon le contexte ou la pression ?",
+    q7: "Quand tu ne dis rien face à une situation, est-ce un choix pédagogique réfléchi, ou de l'évitement que tu justifies après coup ?" },
+
   { id: "parents", label: "Gestion des parents",
     q1: "Quel est le dernier accrochage ou la dernière tension avec un parent ? Qu'est-ce que TOI tu aurais pu faire plus tôt pour l'éviter ou l'apaiser ?",
     q2: "As-tu un cadre clair, posé et communiqué à tous les parents en début de saison — ou ça se règle au cas par cas selon qui râle le plus fort ?",
-    q3: "Y a-t-il un parent avec qui tu évites le contact ? Depuis quand, et qu'est-ce que ce silence coûte à ta relation avec le joueur ?",
-    q4: "Quand un parent te met en difficulté, est-ce que tu réponds sur le moment, tu esquives, ou tu ressasses après coup sans jamais clore le sujet ?" },
+    q3: "As-tu rencontré individuellement chaque famille au moins une fois cette saison, ou certains parents restent des inconnus depuis le début ?",
+    q4: "Ta réunion de début de saison pose-t-elle vraiment les règles du jeu (temps de jeu, comportement attendu, rôle du parent), ou reste-t-elle informative et vague ?",
+    q5: "Sur les 3 derniers accrochages avec un parent, combien as-tu vus venir à l'avance et combien t'ont pris par surprise ?",
+    q6: "As-tu 2-3 parents que tu identifies comme des relais positifs pour porter le discours du club, ou tu gères chaque parent seul, sans jamais t'appuyer sur personne ?",
+    q7: "En cas de désaccord sérieux avec un parent, as-tu une trace de ce qui a été dit et convenu, ou tout repose sur la mémoire et l'oral ?" },
+
   { id: "groupe", label: "Gestion de groupe",
     q1: "Quel joueur te met le plus en difficulté dans la gestion du groupe ? Qu'est-ce que ça dit de toi, pas de lui ?",
-    q2: "Ton groupe reflète-t-il tes valeurs, ou fais-tu des compromis que tu regrettes ?" },
+    q2: "Ton groupe reflète-t-il tes valeurs, ou fais-tu des compromis que tu regrettes ?",
+    q3: "Les règles de vie du groupe ont-elles été construites avec les joueurs, ou tu les as fixées seul et elles leur sont tombées dessus ?",
+    q4: "Un même comportement est-il sanctionné de la même façon selon le joueur qui le commet, ou ça dépend de qui c'est ?",
+    q5: "As-tu identifié qui sont les leaders naturels du groupe, pas forcément les meilleurs joueurs, et t'appuies-tu dessus consciemment ?",
+    q6: "Le joueur le plus discret du groupe, sais-tu ce qui se passe pour lui en ce moment, ou il passe sous ton radar la plupart du temps ?",
+    q7: "Quand il y a une tension entre deux joueurs, interviens-tu tout de suite, ou ça se règle \"entre eux\" par défaut faute de temps ou de méthode ?" },
+
   { id: "suivi", label: "Suivi & évaluation des joueurs",
     q1: "As-tu des données ou observations sur chaque joueur, ou surtout sur ceux qui te sollicitent le plus ?",
-    q2: "Quelle décision as-tu prise récemment sans données, alors que tu aurais pu vérifier ?" },
+    q2: "Quelle décision as-tu prise récemment sans données, alors que tu aurais pu vérifier ?",
+    q3: "À quand remonte ta dernière observation écrite sur chaque joueur — pas juste dans ta tête, mais notée quelque part ?",
+    q4: "Ton évaluation d'un joueur repose-t-elle sur des faits observés répétés, ou sur l'impression du dernier match qui a marqué les esprits ?",
+    q5: "Le joueur connaît-il lui-même ce sur quoi tu l'évalues, ou l'évaluation reste entre toi et ton carnet ?",
+    q6: "Ta dernière décision de temps de jeu ou de poste s'appuie-t-elle sur du suivi concret, ou sur \"c'est comme ça depuis le début de saison\" ?",
+    q7: "Suis-tu la progression individuelle de chaque joueur par rapport à lui-même, ou seulement son niveau par rapport au groupe ?" },
+
   { id: "perso", label: "Développement personnel",
     q1: "Qu'est-ce que tu as appris cette saison que tu ne savais pas avant ?",
-    q2: "Quelle formation, lecture ou échange repousses-tu depuis trop longtemps ?" },
+    q2: "Quelle formation, lecture ou échange repousses-tu depuis trop longtemps ?",
+    q3: "D'où vient concrètement ce que tu apprends cette saison — formation, vidéos, échanges avec d'autres coachs, essais-erreurs seul — et est-ce équilibré ou tu restes isolé ?",
+    q4: "La dernière fois qu'un résultat ou un retour t'a contrarié, as-tu cherché ta part de responsabilité, ou tu as d'abord cherché les causes extérieures ?",
+    q5: "Le temps que tu consacres à la préparation grandit-il chaque saison — et est-ce soutenable sur la durée, ou tu sens que ça empiète sur autre chose ?",
+    q6: "As-tu un ou plusieurs éducateurs avec qui tu peux vraiment débattre et être contredit, ou tu avances surtout seul avec tes propres certitudes ?",
+    q7: "Sais-tu quel type d'éducateur tu veux être dans 3 ans, ou tu avances saison par saison sans direction au-delà de l'année en cours ?" },
 ];
 
 const ENTRIES_KEY = "coach-self-eval-entries";
@@ -230,7 +290,7 @@ async function pullFromRemote() {
 let state = {
   tab: "evaluer",
   scores: Object.fromEntries(DOMAINS.map(d => [d.id, 3])),
-  answers: Object.fromEntries(DOMAINS.map(d => [d.id, { a1: "", a2: "", a3: "", a4: "", obstacle: "" }])),
+  answers: Object.fromEntries(DOMAINS.map(d => [d.id, { a1: "", a2: "", a3: "", a4: "", a5: "", a6: "", a7: "", obstacle: "" }])),
   synth: { forces: "", faibles: "", axes: "" },
   why: { raison: "", blocage: "", action: "" },
   evoActive: "moyenne",
@@ -271,6 +331,9 @@ function renderEvaluer() {
       ${textField({ label: d.q2, value: a.a2, id: `${d.id}::a2` })}
       ${d.q3 ? textField({ label: d.q3, value: a.a3, id: `${d.id}::a3` }) : ""}
       ${d.q4 ? textField({ label: d.q4, value: a.a4, id: `${d.id}::a4` }) : ""}
+      ${d.q5 ? textField({ label: d.q5, value: a.a5, id: `${d.id}::a5` }) : ""}
+      ${d.q6 ? textField({ label: d.q6, value: a.a6, id: `${d.id}::a6` }) : ""}
+      ${d.q7 ? textField({ label: d.q7, value: a.a7, id: `${d.id}::a7` }) : ""}
       ${low ? textField({ label: "Score bas ici — quel est l'obstacle concret (pas une excuse) qui t'empêche de progresser ?", value: a.obstacle, warn: true, id: `${d.id}::obstacle` }) : ""}
     </div>`;
   });
