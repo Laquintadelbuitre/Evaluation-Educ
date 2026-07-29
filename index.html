@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Carnet Coach</title>
+
+<!-- PWA / écran d'accueil -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#171D1B">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Carnet Coach">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: #171D1B; color: #EDE8DC;
+    font-family: 'Inter', sans-serif; padding-bottom: 40px;
+  }
+  .header { padding: 24px 18px 12px 18px; border-bottom: 1px solid #2A332D; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B9080; letter-spacing: 1.5px; text-transform: uppercase; }
+  .title { font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 700; color: #EDE8DC; line-height: 1; }
+  .tabs { display: flex; gap: 8px; padding: 14px 18px; }
+  .tab {
+    flex: 1; padding: 10px 0; border-radius: 8px; border: 1px solid #2A332D; background: #212925;
+    color: #9CA69B; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px;
+    letter-spacing: 0.5px; cursor: pointer; text-align: center;
+  }
+  .tab.active { border-color: #C9A227; background: #2A2018; color: #C9A227; }
+  .content { padding: 0 18px; display: flex; flex-direction: column; gap: 18px; }
+  .card { background: #212925; border: 1px solid #2A332D; border-radius: 10px; padding: 14px 16px; }
+  .domain-label { color: #EDE8DC; font-weight: 600; font-size: 15px; margin-bottom: 10px; }
+  .score-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .score-btn {
+    width: 38px; height: 38px; border-radius: 6px; border: 1px solid #3A443D; background: #232B26;
+    color: #9CA69B; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px; cursor: pointer;
+  }
+  .score-btn.active { border: 2px solid #C9A227; background: #C9A227; color: #171D1B; }
+  .field { margin-top: 10px; }
+  .field label { display: block; color: #9CA69B; font-size: 13px; margin-bottom: 6px; }
+  .field.warn label { color: #D98A98; }
+  .field textarea {
+    width: 100%; min-height: 56px; background: #171D1B; color: #EDE8DC; border: 1px solid #2A332D;
+    border-radius: 8px; padding: 10px; font-size: 14px; font-family: inherit; resize: vertical;
+  }
+  .field.warn textarea { background: #2A1D1F; border-color: #B5495B; }
+  .section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; color: #EDE8DC; margin-bottom: 4px; }
+  .oblig-box { background: #2A2018; border: 1px solid #C9A227; border-radius: 8px; padding: 14px; margin-top: 14px; }
+  .oblig-title { color: #C9A227; font-size: 13px; font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .save-btn {
+    width: 100%; background: #6B9080; color: #0F1512; border: none; border-radius: 10px; padding: 14px 0;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: 0.5px; cursor: pointer;
+  }
+  .identity-save { background: #4A7C59; color: #0F1512; border: none; border-radius: 10px; padding: 12px 0; width: 100%;
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; cursor: pointer; margin-top: 8px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { background: #212925; color: #9CA69B; border: 1px solid #2A332D; border-radius: 20px; padding: 6px 12px; font-size: 12.5px; cursor: pointer; }
+  .chip.active { background: #C9A227; color: #171D1B; border-color: #C9A227; font-weight: 700; }
+  .chart-wrap { background: #212925; border: 1px solid #2A332D; border-radius: 10px; padding: 12px; height: 260px; }
+  .hist-item { background: #212925; border: 1px solid #2A332D; border-radius: 10px; padding: 14px; }
+  .hist-row { display: flex; justify-content: space-between; align-items: center; }
+  .hist-date { font-family: 'JetBrains Mono', monospace; color: #EDE8DC; font-size: 13px; }
+  .del-btn { background: none; border: none; color: #B5495B; font-size: 12px; cursor: pointer; }
+  .warn-box { background: #2A1D1F; border: 1px solid #B5495B; border-radius: 8px; padding: 12px; }
+  .warn-box .t { color: #D98A98; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .warn-box .d { color: #D98A98; font-size: 13px; }
+  .empty-state { color: #9CA69B; text-align: center; padding: 40px 20px; }
+  .toggle-link { background: none; border: none; color: #C9A227; font-size: 13px; cursor: pointer; padding: 0; margin-top: 10px; }
+  .backup-bar { display: flex; gap: 8px; }
+  .backup-btn {
+    flex: 1; background: #212925; border: 1px solid #2A332D; color: #9CA69B; border-radius: 8px;
+    padding: 10px 0; font-size: 13px; cursor: pointer;
+  }
+  .date-line { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #9CA69B; letter-spacing: 1px; text-transform: uppercase; }
+  #file-input { display: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Carnet coach — U13</div>
+  <div class="title">Auto-évaluation éducateur</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="evaluer">Évaluer</div>
+  <div class="tab" data-tab="evolution">Évolution</div>
+  <div class="tab" data-tab="identite">Identité</div>
+  <div class="tab" data-tab="sync">Sync</div>
+</div>
+
+<div class="content" id="content"></div>
+
+<input type="file" id="file-input" accept="application/json">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+const DOMAINS = [
+  { id: "conception", label: "Conception & planification",
+    q1: "Cette saison, quelle séance a le mieux servi ta progression collective ? Qu'est-ce qui a fait la différence ?",
+    q2: "Où as-tu improvisé alors que tu aurais dû préparer davantage ?" },
+  { id: "animation", label: "Animation & pédagogie",
+    q1: "Repense à une séance qui n'a pas pris. Qu'est-ce que TOI tu as fait qui a contribué au problème ?",
+    q2: "À qui donnes-tu le moins de feedback individualisé, et pourquoi ?" },
+  { id: "tactique", label: "Tactique & développement du jeu",
+    q1: "Quel principe de jeu tu répètes souvent mais que les joueurs n'ont toujours pas intégré ? Pourquoi, à ton avis ?",
+    q2: "Peux-tu résumer ta philosophie de jeu en une phrase, à un parent qui n'y connaît rien ?",
+    q3: "En match, laisses-tu les joueurs résoudre les problèmes tactiques eux-mêmes, ou interviens-tu trop vite depuis la touche ? Qu'est-ce qui te pousse à intervenir ?" },
+  { id: "technique", label: "Technique individuelle",
+    q1: "Quel geste technique de base (contrôle, passe, frappe, conduite, duel) tu travailles le moins souvent en séance, et pourquoi ?",
+    q2: "As-tu un joueur avec un défaut technique récurrent que tu n'as toujours pas corrigé ? Qu'est-ce qui t'a empêché de t'y attaquer ?" },
+  { id: "mental", label: "Mental & compétition",
+    q1: "Comment réagis-tu, toi, sur le banc quand l'équipe encaisse un but ou qu'une décision arbitrale te semble injuste ? Qu'est-ce que tu transmets sans le vouloir à ce moment-là ?",
+    q2: "As-tu une méthode pour préparer tes joueurs à gérer la pression en match, ou ça reste de l'instinct au coup par coup ?",
+    q3: "Quel joueur perd le plus vite sa confiance après une erreur ? Qu'as-tu mis en place concrètement, cette saison, pour l'aider ?",
+    q4: "Après une défaite lourde, qu'est-ce que tu dis en premier au groupe — et est-ce que ça t'arrive de le dire sous le coup de l'émotion plutôt que par choix ?" },
+  { id: "physique", label: "Préparation physique & charge",
+    q1: "As-tu déjà poussé une séance alors que les signaux (RPE, fatigue) disaient le contraire ?",
+    q2: "Quel joueur est le plus à risque de surcharge en ce moment, et que fais-tu concrètement pour ça ?" },
+  { id: "communication", label: "Communication",
+    q1: "Y a-t-il une conversation difficile (joueur, staff, club) que tu évites depuis un moment ?",
+    q2: "Quand as-tu reçu une critique la dernière fois, et comment as-tu réagi sur le moment ?" },
+  { id: "parents", label: "Gestion des parents",
+    q1: "Quel est le dernier accrochage ou la dernière tension avec un parent ? Qu'est-ce que TOI tu aurais pu faire plus tôt pour l'éviter ou l'apaiser ?",
+    q2: "As-tu un cadre clair, posé et communiqué à tous les parents en début de saison — ou ça se règle au cas par cas selon qui râle le plus fort ?",
+    q3: "Y a-t-il un parent avec qui tu évites le contact ? Depuis quand, et qu'est-ce que ce silence coûte à ta relation avec le joueur ?",
+    q4: "Quand un parent te met en difficulté, est-ce que tu réponds sur le moment, tu esquives, ou tu ressasses après coup sans jamais clore le sujet ?" },
+  { id: "groupe", label: "Gestion de groupe",
+    q1: "Quel joueur te met le plus en difficulté dans la gestion du groupe ? Qu'est-ce que ça dit de toi, pas de lui ?",
+    q2: "Ton groupe reflète-t-il tes valeurs, ou fais-tu des compromis que tu regrettes ?" },
+  { id: "suivi", label: "Suivi & évaluation des joueurs",
+    q1: "As-tu des données ou observations sur chaque joueur, ou surtout sur ceux qui te sollicitent le plus ?",
+    q2: "Quelle décision as-tu prise récemment sans données, alors que tu aurais pu vérifier ?" },
+  { id: "perso", label: "Développement personnel",
+    q1: "Qu'est-ce que tu as appris cette saison que tu ne savais pas avant ?",
+    q2: "Quelle formation, lecture ou échange repousses-tu depuis trop longtemps ?" },
+];
+
+const ENTRIES_KEY = "coach-self-eval-entries";
+const IDENTITY_KEY = "coach-self-eval-identity";
+const CONFIG_KEY = "coach-self-eval-config";
+
+function loadConfig() {
+  try { return JSON.parse(localStorage.getItem(CONFIG_KEY) || "null") || { url: "", token: "" }; }
+  catch (e) { return { url: "", token: "" }; }
+}
+function saveConfig(cfg) {
+  localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
+}
+function isConfigured() {
+  const cfg = loadConfig();
+  return !!(cfg.url && cfg.token);
+}
+
+// Cache local (fonctionne toujours, même hors ligne)
+function loadEntries() {
+  try { return JSON.parse(localStorage.getItem(ENTRIES_KEY) || "[]"); }
+  catch (e) { return []; }
+}
+function saveEntriesLocal(entries) {
+  localStorage.setItem(ENTRIES_KEY, JSON.stringify(entries));
+}
+function loadIdentity() {
+  try { return JSON.parse(localStorage.getItem(IDENTITY_KEY) || "null") || { philosophie: "", valeurs: "", jamais: "" }; }
+  catch (e) { return { philosophie: "", valeurs: "", jamais: "" }; }
+}
+function saveIdentityLocal(id) {
+  localStorage.setItem(IDENTITY_KEY, JSON.stringify(id));
+}
+
+let syncStatus = { state: "off", message: "" }; // off | ok | error | syncing
+
+async function apiGet() {
+  const cfg = loadConfig();
+  if (!cfg.url || !cfg.token) return null;
+  syncStatus = { state: "syncing", message: "Synchronisation…" };
+  try {
+    const res = await fetch(`${cfg.url}?token=${encodeURIComponent(cfg.token)}`);
+    const data = await res.json();
+    if (data.error) {
+      syncStatus = { state: "error", message: "Jeton refusé par le script." };
+      return null;
+    }
+    syncStatus = { state: "ok", message: "Synchronisé — " + new Date().toLocaleTimeString("fr-FR") };
+    return data;
+  } catch (e) {
+    syncStatus = { state: "error", message: "Connexion au script impossible (hors ligne ?)." };
+    return null;
+  }
+}
+
+async function apiPost(payload) {
+  const cfg = loadConfig();
+  if (!cfg.url || !cfg.token) return false;
+  try {
+    const res = await fetch(cfg.url, { method: "POST", body: JSON.stringify({ ...payload, token: cfg.token }) });
+    const data = await res.json();
+    if (data.error) {
+      syncStatus = { state: "error", message: "Jeton refusé par le script." };
+      return false;
+    }
+    syncStatus = { state: "ok", message: "Synchronisé — " + new Date().toLocaleTimeString("fr-FR") };
+    return true;
+  } catch (e) {
+    syncStatus = { state: "error", message: "Envoi impossible (hors ligne ?). Sauvegardé localement, réessaie plus tard." };
+    return false;
+  }
+}
+
+// Écriture : toujours en local d'abord (instantané, fiable hors ligne), puis tentative d'envoi au script
+async function saveEntries(entries) {
+  saveEntriesLocal(entries);
+}
+async function saveIdentity(id) {
+  saveIdentityLocal(id);
+}
+
+async function pullFromRemote() {
+  const data = await apiGet();
+  if (data) {
+    saveEntriesLocal(data.entries || []);
+    saveIdentityLocal(data.identity || { philosophie: "", valeurs: "", jamais: "" });
+  }
+  return data;
+}
+
+let state = {
+  tab: "evaluer",
+  scores: Object.fromEntries(DOMAINS.map(d => [d.id, 3])),
+  answers: Object.fromEntries(DOMAINS.map(d => [d.id, { a1: "", a2: "", a3: "", a4: "", obstacle: "" }])),
+  synth: { forces: "", faibles: "", axes: "" },
+  why: { raison: "", blocage: "", action: "" },
+  evoActive: "moyenne",
+};
+
+function fmtDate(iso) {
+  return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+}
+function fmtShort(iso) {
+  return new Date(iso).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" });
+}
+
+function textField({ label, value, warn, id }) {
+  return `
+    <div class="field ${warn ? 'warn' : ''}">
+      <label>${label}</label>
+      <textarea data-field="${id}">${value || ""}</textarea>
+    </div>`;
+}
+
+function renderEvaluer() {
+  let html = `
+    <div>
+      <div class="date-line">${new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</div>
+      <div class="title" style="font-size:26px;">Feuille de match — auto-évaluation</div>
+    </div>`;
+
+  DOMAINS.forEach(d => {
+    const score = state.scores[d.id];
+    const low = score <= 2;
+    const a = state.answers[d.id];
+    html += `<div class="card">
+      <div class="domain-label">${d.label}</div>
+      <div class="score-row" data-domain="${d.id}">
+        ${[1,2,3,4,5].map(n => `<button class="score-btn ${n===score?'active':''}" data-score="${n}">${n}</button>`).join("")}
+      </div>
+      ${textField({ label: d.q1, value: a.a1, id: `${d.id}::a1` })}
+      ${textField({ label: d.q2, value: a.a2, id: `${d.id}::a2` })}
+      ${d.q3 ? textField({ label: d.q3, value: a.a3, id: `${d.id}::a3` }) : ""}
+      ${d.q4 ? textField({ label: d.q4, value: a.a4, id: `${d.id}::a4` }) : ""}
+      ${low ? textField({ label: "Score bas ici — quel est l'obstacle concret (pas une excuse) qui t'empêche de progresser ?", value: a.obstacle, warn: true, id: `${d.id}::obstacle` }) : ""}
+    </div>`;
+  });
+
+  html += `
+    <div style="border-top:1px solid #3A443D; padding-top:16px;">
+      <div class="section-title">Bilan de saison</div>
+      ${textField({ label: "Points forts", value: state.synth.forces, id: "synth::forces" })}
+      ${textField({ label: "Points faibles", value: state.synth.faibles, id: "synth::faibles" })}
+      ${textField({ label: "Axes d'amélioration", value: state.synth.axes, id: "synth::axes" })}
+      <div class="oblig-box">
+        <div class="oblig-title">Point obligatoire — cascade de pourquoi</div>
+        ${textField({ label: "1. Quel est le point à travailler, et pourquoi c'est important ?", value: state.why.raison, id: "why::raison" })}
+        ${textField({ label: "2. Pourquoi ce n'est pas déjà réglé aujourd'hui ?", value: state.why.blocage, id: "why::blocage" })}
+        ${textField({ label: "3. Action concrète, avec une échéance précise", value: state.why.action, id: "why::action" })}
+      </div>
+    </div>
+    <button class="save-btn" id="save-eval">Enregistrer cette évaluation</button>
+  `;
+  return html;
+}
+
+function computeStagnant(entries) {
+  if (entries.length < 2) return [];
+  const last = entries[entries.length - 1];
+  const prev = entries[entries.length - 2];
+  return DOMAINS.filter(d => last.scores[d.id] <= prev.scores[d.id] && last.scores[d.id] <= 3);
+}
+
+let chartInstance = null;
+
+function renderEvolution() {
+  const entries = loadEntries();
+  if (entries.length === 0) {
+    return `<div class="empty-state">Aucune évaluation enregistrée pour l'instant.<br>Remplis ta première feuille de match dans l'onglet "Évaluer" pour commencer à suivre ta progression.</div>`;
+  }
+  const stagnant = computeStagnant(entries);
+  let html = `<div class="title" style="font-size:22px;">Évolution dans le temps</div>`;
+  if (stagnant.length > 0) {
+    html += `<div class="warn-box"><div class="t">À surveiller</div><div class="d">${stagnant.map(d=>d.label).join(", ")} — stable ou en baisse depuis ta dernière évaluation, et déjà noté ≤3.</div></div>`;
+  }
+  html += `<div class="chip-row" id="evo-chips">
+    <div class="chip ${state.evoActive==='moyenne'?'active':''}" data-domain="moyenne">Moyenne globale</div>
+    ${DOMAINS.map(d => `<div class="chip ${state.evoActive===d.id?'active':''}" data-domain="${d.id}">${d.label.split(" ")[0]}</div>`).join("")}
+  </div>
+  <div class="chart-wrap"><canvas id="evo-chart"></canvas></div>
+  <div class="title" style="font-size:18px;">Historique</div>`;
+
+  [...entries].reverse().forEach(e => {
+    html += `<div class="hist-item">
+      <div class="hist-row">
+        <div class="hist-date">${fmtDate(e.date)}</div>
+        <button class="del-btn" data-del="${e.date}">Supprimer</button>
+      </div>
+      ${e.why && e.why.action ? `<div style="margin-top:8px;color:#C9A227;font-size:13px;">Action engagée : ${e.why.action}</div>` : ""}
+    </div>`;
+  });
+
+  html += `
+    <div class="section-title" style="margin-top:8px;">Sauvegarde de tes données</div>
+    <div class="backup-bar">
+      <button class="backup-btn" id="export-btn">Exporter (fichier)</button>
+      <button class="backup-btn" id="import-btn">Importer</button>
+    </div>
+  `;
+  return html;
+}
+
+function renderIdentite() {
+  const identity = loadIdentity();
+  return `
+    <div class="title" style="font-size:24px;">Ton identité de coach</div>
+    <div style="color:#9CA69B;font-size:13.5px;">Rempli une fois, à revoir tous les 6-12 mois. Sert de point de repère : ta pratique dérive-t-elle de tes valeurs ?</div>
+    ${textField({ label: "Ta philosophie de jeu et de coaching, en une phrase", value: identity.philosophie, id: "id::philosophie" })}
+    ${textField({ label: "Tes 3 valeurs non-négociables sur le terrain", value: identity.valeurs, id: "id::valeurs" })}
+    ${textField({ label: "Le coach que tu ne veux jamais devenir", value: identity.jamais, id: "id::jamais" })}
+    <button class="identity-save" id="save-identity">Enregistrer</button>
+  `;
+}
+
+function renderSync() {
+  const cfg = loadConfig();
+  const statusColor = { off: "#9CA69B", ok: "#6B9080", error: "#B5495B", syncing: "#C9A227" }[syncStatus.state];
+  const statusText = syncStatus.state === "off" ? "Pas encore connecté" : syncStatus.message;
+  return `
+    <div class="title" style="font-size:24px;">Synchronisation Google Sheets</div>
+    <div style="color:#9CA69B;font-size:13.5px;">
+      Connecte ton script Google Apps Script (voir le fichier Code.gs fourni) pour garder tes données sur le long terme,
+      accessibles depuis n'importe quel appareil et consultables directement dans une Google Sheet.
+    </div>
+    <div class="field">
+      <label>URL du script (se termine par /exec)</label>
+      <textarea data-sync="url" style="min-height:40px;">${cfg.url || ""}</textarea>
+    </div>
+    <div class="field">
+      <label>Jeton secret (défini dans Code.gs)</label>
+      <textarea data-sync="token" style="min-height:40px;">${cfg.token || ""}</textarea>
+    </div>
+    <button class="identity-save" id="save-config">Enregistrer la connexion</button>
+    <button class="backup-btn" id="manual-sync" style="margin-top:8px;">Synchroniser maintenant</button>
+    <div style="margin-top:10px; font-size:13px; color:${statusColor};">${statusText}</div>
+  `;
+}
+
+function render() {
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === state.tab));
+  const el = document.getElementById("content");
+  if (state.tab === "evaluer") el.innerHTML = renderEvaluer();
+  else if (state.tab === "evolution") el.innerHTML = renderEvolution();
+  else if (state.tab === "identite") el.innerHTML = renderIdentite();
+  else el.innerHTML = renderSync();
+  attachHandlers();
+  if (state.tab === "evolution") drawChart();
+}
+
+function drawChart() {
+  const entries = loadEntries();
+  if (entries.length === 0) return;
+  const labels = entries.map(e => fmtShort(e.date));
+  const data = entries.map(e => {
+    if (state.evoActive === "moyenne") {
+      const vals = DOMAINS.map(d => e.scores[d.id]);
+      return Math.round((vals.reduce((a,b)=>a+b,0) / vals.length) * 10) / 10;
+    }
+    return e.scores[state.evoActive];
+  });
+  const ctx = document.getElementById("evo-chart");
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, {
+    type: "line",
+    data: { labels, datasets: [{ data, borderColor: "#C9A227", backgroundColor: "#C9A227", pointRadius: 4, tension: 0.3 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: "#9CA69B", font: { size: 11 } }, grid: { color: "#2A332D" } },
+        y: { min: 1, max: 5, ticks: { color: "#9CA69B", font: { size: 11 } }, grid: { color: "#2A332D" } }
+      }
+    }
+  });
+}
+
+function attachHandlers() {
+  document.querySelectorAll("textarea[data-field]").forEach(ta => {
+    ta.addEventListener("input", (e) => {
+      const [group, key] = e.target.dataset.field.split("::");
+      if (group === "synth") state.synth[key] = e.target.value;
+      else if (group === "why") state.why[key] = e.target.value;
+      else if (group === "id") {
+        const identity = loadIdentity();
+        identity[key] = e.target.value;
+        saveIdentity(identity);
+      } else {
+        state.answers[group][key] = e.target.value;
+      }
+    });
+  });
+
+  document.querySelectorAll(".score-row").forEach(row => {
+    row.addEventListener("click", (e) => {
+      if (e.target.dataset.score) {
+        const domain = row.dataset.domain;
+        state.scores[domain] = parseInt(e.target.dataset.score, 10);
+        render();
+      }
+    });
+  });
+
+  const saveEvalBtn = document.getElementById("save-eval");
+  if (saveEvalBtn) saveEvalBtn.addEventListener("click", async () => {
+    const entry = { date: new Date().toISOString(), scores: {...state.scores}, answers: JSON.parse(JSON.stringify(state.answers)), synth: {...state.synth}, why: {...state.why} };
+    const entries = loadEntries();
+    entries.push(entry);
+    entries.sort((a,b) => new Date(a.date) - new Date(b.date));
+    await saveEntries(entries);
+    saveEvalBtn.textContent = "✓ Enregistré";
+    if (isConfigured()) {
+      await apiPost({ action: "saveEntry", entry });
+      saveEvalBtn.textContent = syncStatus.state === "ok" ? "✓ Enregistré et synchronisé" : "✓ Enregistré (sync en attente)";
+    }
+    setTimeout(() => { saveEvalBtn.textContent = "Enregistrer cette évaluation"; }, 2800);
+  });
+
+  const saveIdBtn = document.getElementById("save-identity");
+  if (saveIdBtn) saveIdBtn.addEventListener("click", async () => {
+    saveIdBtn.textContent = "✓ Enregistré";
+    if (isConfigured()) {
+      await apiPost({ action: "saveIdentity", identity: loadIdentity() });
+      saveIdBtn.textContent = syncStatus.state === "ok" ? "✓ Enregistré et synchronisé" : "✓ Enregistré (sync en attente)";
+    }
+    setTimeout(() => { saveIdBtn.textContent = "Enregistrer"; }, 2800);
+  });
+
+  const saveConfigBtn = document.getElementById("save-config");
+  if (saveConfigBtn) saveConfigBtn.addEventListener("click", async () => {
+    const url = document.querySelector('[data-sync="url"]').value.trim();
+    const token = document.querySelector('[data-sync="token"]').value.trim();
+    saveConfig({ url, token });
+    saveConfigBtn.textContent = "Test de connexion…";
+    const data = await pullFromRemote();
+    render();
+  });
+
+  const manualSyncBtn = document.getElementById("manual-sync");
+  if (manualSyncBtn) manualSyncBtn.addEventListener("click", async () => {
+    manualSyncBtn.textContent = "Synchronisation…";
+    await pullFromRemote();
+    render();
+  });
+
+  const evoChips = document.getElementById("evo-chips");
+  if (evoChips) evoChips.addEventListener("click", (e) => {
+    if (e.target.dataset.domain) {
+      state.evoActive = e.target.dataset.domain;
+      render();
+    }
+  });
+
+  document.querySelectorAll("[data-del]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const entries = loadEntries().filter(e => e.date !== btn.dataset.del);
+      await saveEntries(entries);
+      if (isConfigured()) await apiPost({ action: "deleteEntry", date: btn.dataset.del });
+      render();
+    });
+  });
+
+  const exportBtn = document.getElementById("export-btn");
+  if (exportBtn) exportBtn.addEventListener("click", () => {
+    const data = { entries: loadEntries(), identity: loadIdentity() };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `carnet-coach-sauvegarde-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  const importBtn = document.getElementById("import-btn");
+  const fileInput = document.getElementById("file-input");
+  if (importBtn) importBtn.addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (data.entries) saveEntries(data.entries);
+        if (data.identity) saveIdentity(data.identity);
+        render();
+        alert("Sauvegarde importée avec succès.");
+      } catch (err) {
+        alert("Le fichier n'a pas pu être lu. Vérifie qu'il s'agit bien d'une sauvegarde exportée depuis ce carnet.");
+      }
+    };
+    reader.readAsText(file);
+  });
+}
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    state.tab = tab.dataset.tab;
+    render();
+  });
+});
+
+render();
+
+// Au chargement : si un script est configuré, on tire les données à jour depuis la Google Sheet
+if (isConfigured()) {
+  pullFromRemote().then(() => render());
+}
+
+// Enregistrement du service worker (mode hors-ligne)
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
