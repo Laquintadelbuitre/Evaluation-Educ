@@ -193,6 +193,33 @@ const DOMAINS = [
 const ENTRIES_KEY = "coach-self-eval-entries";
 const IDENTITY_KEY = "coach-self-eval-identity";
 const CONFIG_KEY = "coach-self-eval-config";
+const DRAFT_KEY = "coach-self-eval-draft";
+
+function loadDraftLocal() {
+  try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || "null"); }
+  catch (e) { return null; }
+}
+function saveDraftLocal(draft) {
+  if (draft) localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  else localStorage.removeItem(DRAFT_KEY);
+}
+function applyDraftToState(draft) {
+  if (!draft) return;
+  if (draft.scores) state.scores = draft.scores;
+  if (draft.answers) state.answers = draft.answers;
+  if (draft.synth) state.synth = draft.synth;
+  if (draft.why) state.why = draft.why;
+  state.draftSavedAt = draft.savedAt || null;
+}
+function currentDraft() {
+  return {
+    scores: { ...state.scores },
+    answers: JSON.parse(JSON.stringify(state.answers)),
+    synth: { ...state.synth },
+    why: { ...state.why },
+    savedAt: new Date().toISOString(),
+  };
+}
 
 function loadConfig() {
   try { return JSON.parse(localStorage.getItem(CONFIG_KEY) || "null") || { url: "", token: "" }; }
@@ -274,6 +301,7 @@ async function pullFromRemote() {
   if (data) {
     saveEntriesLocal(data.entries || []);
     saveIdentityLocal(data.identity || { philosophie: "", valeurs: "", jamais: "" });
+    if (data.draft !== undefined) saveDraftLocal(data.draft);
   }
   return data;
 }
@@ -285,6 +313,8 @@ let state = {
   synth: { forces: "", faibles: "", axes: "" },
   why: { raison: "", blocage: "", action: "" },
   evoActive: "moyenne",
+  draftSavedAt: null,
+  expandedEntry: null,
 };
 
 function fmtDate(iso) {
@@ -320,6 +350,7 @@ function renderEvaluer() {
     <div>
       <div class="date-line">${new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</div>
       <div class="title" style="font-size:26px;">Feuille de match — auto-évaluation</div>
+      ${state.draftSavedAt ? `<div style="color:#C9A227; font-size:12.5px; margin-top:4px;">Brouillon repris du ${fmtDate(state.draftSavedAt)}</div>` : ""}
     </div>`;
 
   DOMAINS.forEach(d => {
@@ -355,6 +386,7 @@ function renderEvaluer() {
         ${textField({ label: "3. Action concrète, avec une échéance précise", value: state.why.action, id: "why::action" })}
       </div>
     </div>
+    <button class="backup-btn" id="save-draft" style="padding:12px 0; font-size:15px;">Enregistrer le brouillon</button>
     <button class="save-btn" id="save-eval">Enregistrer cette évaluation</button>
   `;
   return html;
@@ -368,6 +400,52 @@ function computeStagnant(entries) {
 }
 
 let chartInstance = null;
+
+function renderEntryDetail(entry) {
+  let html = `<div style="margin-top:12px; padding-top:12px; border-top:1px solid #2A332D; display:flex; flex-direction:column; gap:10px;">`;
+  DOMAINS.forEach(d => {
+    const a = entry.answers ? entry.answers[d.id] : null;
+    const score = entry.scores[d.id];
+    html += `<div style="background:#171D1B; border:1px solid #2A332D; border-radius:8px; padding:10px 12px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="color:#EDE8DC; font-weight:600; font-size:14px;">${d.label}</div>
+        <div style="font-family:'Barlow Condensed', sans-serif; font-weight:700; color:#C9A227; font-size:16px;">${score}/5</div>
+      </div>`;
+    if (a) {
+      ["q1","q2","q3","q4","q5","q6","q7"].forEach(k => {
+        const ak = "a" + k[1];
+        if (d[k] && a[ak]) {
+          html += `<div style="margin-top:8px;"><div style="color:#9CA69B; font-size:12px;">${d[k]}</div><div style="color:#EDE8DC; font-size:13.5px; margin-top:2px;">${a[ak]}</div></div>`;
+        }
+      });
+      if (a.obstacle) {
+        html += `<div style="margin-top:8px;"><div style="color:#D98A98; font-size:12px;">Obstacle identifié</div><div style="color:#EDE8DC; font-size:13.5px; margin-top:2px;">${a.obstacle}</div></div>`;
+      }
+    }
+    html += `</div>`;
+  });
+
+  if (entry.synth) {
+    html += `<div style="background:#171D1B; border:1px solid #2A332D; border-radius:8px; padding:10px 12px;">
+      <div style="color:#EDE8DC; font-weight:600; font-size:14px; margin-bottom:6px;">Bilan de saison</div>
+      ${entry.synth.forces ? `<div style="margin-top:6px;"><div style="color:#9CA69B; font-size:12px;">Points forts</div><div style="color:#EDE8DC; font-size:13.5px;">${entry.synth.forces}</div></div>` : ""}
+      ${entry.synth.faibles ? `<div style="margin-top:6px;"><div style="color:#9CA69B; font-size:12px;">Points faibles</div><div style="color:#EDE8DC; font-size:13.5px;">${entry.synth.faibles}</div></div>` : ""}
+      ${entry.synth.axes ? `<div style="margin-top:6px;"><div style="color:#9CA69B; font-size:12px;">Axes d'amélioration</div><div style="color:#EDE8DC; font-size:13.5px;">${entry.synth.axes}</div></div>` : ""}
+    </div>`;
+  }
+
+  if (entry.why) {
+    html += `<div style="background:#2A2018; border:1px solid #C9A227; border-radius:8px; padding:10px 12px;">
+      <div style="color:#C9A227; font-weight:700; font-size:13px; text-transform:uppercase; margin-bottom:6px;">Point obligatoire</div>
+      ${entry.why.raison ? `<div style="margin-top:4px;"><div style="color:#9CA69B; font-size:12px;">1. Raison</div><div style="color:#EDE8DC; font-size:13.5px;">${entry.why.raison}</div></div>` : ""}
+      ${entry.why.blocage ? `<div style="margin-top:6px;"><div style="color:#9CA69B; font-size:12px;">2. Blocage</div><div style="color:#EDE8DC; font-size:13.5px;">${entry.why.blocage}</div></div>` : ""}
+      ${entry.why.action ? `<div style="margin-top:6px;"><div style="color:#9CA69B; font-size:12px;">3. Action</div><div style="color:#EDE8DC; font-size:13.5px;">${entry.why.action}</div></div>` : ""}
+    </div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
 
 function renderEvolution() {
   const entries = loadEntries();
@@ -387,12 +465,15 @@ function renderEvolution() {
   <div class="title" style="font-size:18px;">Historique</div>`;
 
   [...entries].reverse().forEach(e => {
+    const expanded = state.expandedEntry === e.date;
     html += `<div class="hist-item">
       <div class="hist-row">
         <div class="hist-date">${fmtDate(e.date)} — <span style="color:#C9A227;">${computeNote20(e.scores)}/20</span></div>
         <button class="del-btn" data-del="${e.date}">Supprimer</button>
       </div>
       ${e.why && e.why.action ? `<div style="margin-top:8px;color:#C9A227;font-size:13px;">Action engagée : ${e.why.action}</div>` : ""}
+      <button class="toggle-link" data-expand="${e.date}">${expanded ? "− masquer le détail" : "+ voir le détail"}</button>
+      ${expanded ? renderEntryDetail(e) : ""}
     </div>`;
   });
 
@@ -506,6 +587,19 @@ function attachHandlers() {
     });
   });
 
+  const saveDraftBtn = document.getElementById("save-draft");
+  if (saveDraftBtn) saveDraftBtn.addEventListener("click", async () => {
+    const draft = currentDraft();
+    saveDraftLocal(draft);
+    state.draftSavedAt = draft.savedAt;
+    saveDraftBtn.textContent = "✓ Brouillon enregistré";
+    if (isConfigured()) {
+      await apiPost({ action: "saveDraft", draft });
+      saveDraftBtn.textContent = syncStatus.state === "ok" ? "✓ Brouillon enregistré et synchronisé" : "✓ Brouillon enregistré (sync en attente)";
+    }
+    setTimeout(() => { saveDraftBtn.textContent = "Enregistrer le brouillon"; }, 2800);
+  });
+
   const saveEvalBtn = document.getElementById("save-eval");
   if (saveEvalBtn) saveEvalBtn.addEventListener("click", async () => {
     const entry = { date: new Date().toISOString(), scores: {...state.scores}, answers: JSON.parse(JSON.stringify(state.answers)), synth: {...state.synth}, why: {...state.why} };
@@ -513,12 +607,15 @@ function attachHandlers() {
     entries.push(entry);
     entries.sort((a,b) => new Date(a.date) - new Date(b.date));
     await saveEntries(entries);
+    saveDraftLocal(null);
+    state.draftSavedAt = null;
     saveEvalBtn.textContent = "✓ Enregistré";
     if (isConfigured()) {
       await apiPost({ action: "saveEntry", entry });
+      await apiPost({ action: "saveDraft", draft: null });
       saveEvalBtn.textContent = syncStatus.state === "ok" ? "✓ Enregistré et synchronisé" : "✓ Enregistré (sync en attente)";
     }
-    setTimeout(() => { saveEvalBtn.textContent = "Enregistrer cette évaluation"; }, 2800);
+    setTimeout(() => { saveEvalBtn.textContent = "Enregistrer cette évaluation"; render(); }, 2800);
   });
 
   const saveIdBtn = document.getElementById("save-identity");
@@ -554,6 +651,13 @@ function attachHandlers() {
       state.evoActive = e.target.dataset.domain;
       render();
     }
+  });
+
+  document.querySelectorAll("[data-expand]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.expandedEntry = state.expandedEntry === btn.dataset.expand ? null : btn.dataset.expand;
+      render();
+    });
   });
 
   document.querySelectorAll("[data-del]").forEach(btn => {
@@ -599,6 +703,8 @@ function attachHandlers() {
   });
 }
 
+applyDraftToState(loadDraftLocal());
+
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => {
     state.tab = tab.dataset.tab;
@@ -610,7 +716,12 @@ render();
 
 // Au chargement : si un script est configuré, on tire les données à jour depuis la Google Sheet
 if (isConfigured()) {
-  pullFromRemote().then(() => render());
+  pullFromRemote().then((data) => {
+    if (data && data.draft) {
+      applyDraftToState(data.draft);
+    }
+    render();
+  });
 }
 
 // Enregistrement du service worker (mode hors-ligne)
