@@ -339,6 +339,25 @@ function computeNote20(scores) {
   return Math.round((total / max) * 20 * 10) / 10;
 }
 
+function validateEntry() {
+  const missing = [];
+  DOMAINS.forEach(d => {
+    const a = state.answers[d.id];
+    const qKeys = ["q1","q2","q3","q4","q5","q6","q7"].filter(k => d[k]);
+    const incomplete = qKeys.some(k => {
+      const ak = "a" + k[1];
+      return !a[ak] || !a[ak].trim();
+    });
+    const obstacleMissing = state.scores[d.id] <= 2 && (!a.obstacle || !a.obstacle.trim());
+    if (incomplete || obstacleMissing) missing.push(d.label);
+  });
+  const synthMissing = !state.synth.forces.trim() || !state.synth.faibles.trim() || !state.synth.axes.trim();
+  if (synthMissing) missing.push("Bilan de saison (points forts / faibles / axes)");
+  const whyMissing = !state.why.raison.trim() || !state.why.blocage.trim() || !state.why.action.trim();
+  if (whyMissing) missing.push("Point obligatoire (cascade de pourquoi)");
+  return { ok: missing.length === 0, missing };
+}
+
 function renderEvaluer() {
   const note = computeNote20(state.scores);
   let html = `
@@ -388,6 +407,7 @@ function renderEvaluer() {
     </div>
     <button class="backup-btn" id="save-draft" style="padding:12px 0; font-size:15px;">Enregistrer le brouillon</button>
     <button class="save-btn" id="save-eval">Enregistrer cette évaluation</button>
+    <div id="validation-msg" style="color:#D98A98; font-size:13px; margin-top:2px;"></div>
   `;
   return html;
 }
@@ -602,6 +622,21 @@ function attachHandlers() {
 
   const saveEvalBtn = document.getElementById("save-eval");
   if (saveEvalBtn) saveEvalBtn.addEventListener("click", async () => {
+    const validation = validateEntry();
+    const msgEl = document.getElementById("validation-msg");
+
+    if (!validation.ok) {
+      const draft = currentDraft();
+      saveDraftLocal(draft);
+      state.draftSavedAt = draft.savedAt;
+      if (isConfigured()) await apiPost({ action: "saveDraft", draft });
+      if (msgEl) {
+        msgEl.innerHTML = `Validation impossible tant que toutes les questions ne sont pas remplies. Ton brouillon a été enregistré.<br>Encore incomplet : ${validation.missing.join(", ")}.`;
+      }
+      return;
+    }
+
+    if (msgEl) msgEl.textContent = "";
     const entry = { date: new Date().toISOString(), scores: {...state.scores}, answers: JSON.parse(JSON.stringify(state.answers)), synth: {...state.synth}, why: {...state.why} };
     const entries = loadEntries();
     entries.push(entry);
